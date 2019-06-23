@@ -1,0 +1,21 @@
+{
+    "name": "kosuha606/html-uni-parser",
+    "description": "Uni parser for sites",
+    "type": "composer-pugin",
+    "authors": [
+        {
+            "name": "Eugene Kosuhin",
+            "email": "kosuha606@gamil.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "zendframework/zend-dom": "^2.7@dev",
+        "phpunit/phpunit": "7.5.x-dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "kosuha606\\HtmlUniParser\\": "src"
+        }
+    }
+}
