@@ -10,7 +10,10 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "zendframework/zend-dom": "^2.7@dev",
+        "php": ">=7.0.0",
+        "zendframework/zend-dom": "^2.7@dev"
+    },
+    "reqiure-dev": {
         "phpunit/phpunit": "7.5.x-dev"
     },
     "autoload": {
