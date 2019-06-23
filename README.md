@@ -1,6 +1,8 @@
 HtmlUniParser
 --
 
+[![Build Status](https://travis-ci.org/kosuha606/html-uni-parser.svg?branch=master)](https://travis-ci.org/kosuha606/html-uni-parser)
+
 Universal html parser which can parse every kind of html page
 
 **Installation**
