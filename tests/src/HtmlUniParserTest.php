@@ -54,6 +54,28 @@ class HtmlUniParserTest extends TestCase
         $this->assertEquals('Page title', $result[0]['h1']);
     }
 
+    public function testEncodingCP1251()
+    {
+        $this->markTestSkipped('in develop');
+        $parser = $this
+            ->getMockBuilder(ZendBasedParser::class)
+            ->getMock()
+        ;
+        $content = '<meta charset="UTF-8" />'.file_get_contents(__DIR__.'/../data/cp1251_encoding.html');
+        //$content = iconv('CP1251', 'UTF-8', $content);
+        $parser->expects($this->any())->method('dom')->will($this->returnValue(
+            new Query($content, 'Windows-1251')
+        ));
+        $result = (new HtmlUniParser([
+            'pageUrl' => 'test_card',
+            'encoding' => 'Windows-1251',
+            'xpathOnCard' => [
+                'h1' => '//h1',
+            ]
+        ], $parser))->parseCard();
+        $this->assertEquals('Кирилица в заголовке', $result['h1']);
+    }
+
     public function testParseSearch()
     {
         $this->markTestSkipped('in develop');

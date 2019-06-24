@@ -12,25 +12,31 @@ class HtmlUniParser extends BaseObject
      * Парсинг по сценарию каталога
      * @var
      */
-    public $catalogUrl;
+    protected $catalogUrl;
 
     /**
      * Парсинг по сценарию поиска на сайте
      * @var
      */
-    public $searchUrl;
+    protected $searchUrl;
 
     /**
      * Парсинг по сценарию получения данных от одной страницы
      * @var
      */
-    public $pageUrl;
+    protected $pageUrl;
 
     /**
      * Парсинг по урлам, сгенерированным генератором
      * @var
      */
-    public $urlGenerator;
+    protected $urlGenerator;
+
+    /**
+     * Кодировка сайта
+     * @var string
+     */
+    protected $encoding = 'UTF-8';
 
     /**
      * @var
@@ -115,6 +121,9 @@ class HtmlUniParser extends BaseObject
     {
         if  (!in_array  ('dom', get_loaded_extensions())) {
             throw new ParserInvalidConfigException('The dom extension in not loaded in system');
+        }
+        if  (!in_array  ('iconv', get_loaded_extensions())) {
+            throw new ParserInvalidConfigException('The iconv extension in not loaded in system');
         }
         parent::__construct($config);
         $this->zendParser = $parser;
@@ -216,7 +225,7 @@ class HtmlUniParser extends BaseObject
         $html = $val->ownerDocument->saveHTML($val);
         // Удаляем картинки из спарсенного текста
         $html = preg_replace("/<img[^>]+\>/i", "", $html);
-        return $html;
+        return $this->proccessValue($html);
     }
 
     /**
@@ -232,7 +241,7 @@ class HtmlUniParser extends BaseObject
         if ($val instanceof \DOMElement) {
             $result = $this->valueStub($val, 'nodeValue');
         }
-        return trim($result);
+        return $this->proccessValue(trim($result));
     }
 
     /**
@@ -255,25 +264,25 @@ class HtmlUniParser extends BaseObject
     {
         $this->zendParser->setSleepAfterRequest($this->sleepAfterRequest);
         $this->zendParser->setUrl($this->catalogUrl);
-        $items = $this->zendParser->dom()->queryXpath($this->xpathItem);
+        $items = $this->zendParser->dom($this->getEncoding())->queryXpath($this->xpathItem);
         $result = [];
         foreach ($items as $index => $item) {
             $newItem = [];
             $html = $this->getHtml($item);
             $this->zendParser->setRawHtml($html);
-            $link = $this->zendParser->dom()->queryXpath($this->xpathLink);
+            $link = $this->zendParser->dom($this->getEncoding())->queryXpath($this->xpathLink);
             $link = $this->getFirstValue($link);
             if (preg_match('/^http(s)?:\/\/.*$/i', $link)) {
                 $newItem['link'] = $link;
             } else {
                 $newItem['link'] = $this->siteBaseUrl.$link;
             }
-            $title = $this->zendParser->dom()->queryXpath($this->xpathTitle);
+            $title = $this->zendParser->dom($this->getEncoding())->queryXpath($this->xpathTitle);
             // $newItem['title'] = $this->getFirstValue($title);
             if ($this->goIntoCard && $newItem['link']) {
                 $this->zendParser->setUrl($newItem['link']);
                 foreach ($this->xpathOnCard as $param => $xpath) {
-                    $temParam = $this->zendParser->dom()->queryXpath($xpath);
+                    $temParam = $this->zendParser->dom($this->getEncoding())->queryXpath($xpath);
                     if (in_array($param, $this->xpathOnCardMany)) {
                         $newItem[$param] = $this->getAllValues($temParam);
                     } elseif (in_array($param, $this->xpathOnCardHtml)) {
@@ -309,7 +318,7 @@ class HtmlUniParser extends BaseObject
     {
         $this->zendParser->setUrl($this->pageUrl);
         foreach ($this->xpathOnCard as $param => $xpath) {
-            $temParam = $this->zendParser->dom()->queryXpath($xpath);
+            $temParam = $this->zendParser->dom($this->getEncoding())->queryXpath($xpath);
             if (in_array($param, $this->xpathOnCardMany)) {
                 $newItem[$param] = $this->getAllValues($temParam);
             } elseif (in_array($param, $this->xpathOnCardHtml)) {
@@ -343,5 +352,34 @@ class HtmlUniParser extends BaseObject
         foreach ($this->callbacks as &$callbac) {
             $callbac($lastItem, $this->pageUrl);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getEncoding(): string
+    {
+        return $this->encoding;
+    }
+
+    /**
+     * @param string $encoding
+     */
+    public function setEncoding(string $encoding)
+    {
+        $this->encoding = $encoding;
+    }
+
+    /**
+     * @param $value
+     * @return false|string
+     */
+    private function proccessValue($value)
+    {
+        if ($this->getEncoding() === 'UTF-8') {
+            return $value;
+        }
+        $result = \iconv($this->getEncoding(), 'UTF-8', $value);
+        return $result;
     }
 }

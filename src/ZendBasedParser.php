@@ -66,7 +66,7 @@ class ZendBasedParser
      * @return Query
      * @throws ParserInvalidConfigException
      */
-    public function dom()
+    public function dom($encoding = 'UTF-8')
     {
         if  (!in_array  ('curl', get_loaded_extensions())) {
             throw new ParserInvalidConfigException('The curl extension in not loaded in system');
@@ -80,12 +80,12 @@ class ZendBasedParser
             \curl_exec($ch);
             \curl_close($ch);
             $htmlBuffer = '<meta charset="UTF-8" />';
-            $htmlBuffer .= \ob_get_clean();
+            $htmlBuffer = \ob_get_clean();
             $this->setHtmlBuffer($htmlBuffer);
             $this->setLastUrl($this->getUrl());
             \sleep($this->getSleepAfterRequest());
         }
-        $dom = new Query($this->getHtmlBuffer());
+        $dom = new Query($this->getHtmlBuffer(), $encoding);
         return $dom;
     }
 
