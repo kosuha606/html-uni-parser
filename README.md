@@ -42,7 +42,7 @@ to parse pagination or something similar
 ### Examples
 For more examples see the `examples/` direcotry
 
-### Description of configurable propertiesDescription of configurable properties
+### Description of configurable properties
 | Property | Description   |
 | ------------ | ------------ |
 | catalogUrl  | The url address for parsing by catalog strategy `parseCatalog()`  |
