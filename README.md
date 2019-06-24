@@ -5,7 +5,7 @@ HtmlUniParser
 
 Universal html parser which can parse every kind of html page
 
-**Installation**
+### Installation
 
 To install this plugin use composer:
 
@@ -13,7 +13,7 @@ To install this plugin use composer:
 $ composer require kosuha606/html-uni-parser
 ```
 
-**Usage**
+### Usage
 
 There is four available types of parsing html.
 
@@ -39,10 +39,16 @@ set the qurey string that can change separately from url.
 4. Parse generated urls. This kind of parsing used if you need
 to parse pagination or something similar
 
-**Examples**
+### Examples
 For more examples see the `examples/` direcotry
 
-**Run tests**
+### Description of configurable propertiesDescription of configurable properties
+| Property | Description   |
+| ------------ | ------------ |
+| catalogUrl  | The url address for parsing by catalog strategy `parseCatalog()`  |
+| searchUrl | The url what used to search on goal site. `parseSearch()`   |
+
+### Run tests
 
 To run tests you can use this command:
 ```bash
