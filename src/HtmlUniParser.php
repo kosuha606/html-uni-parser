@@ -113,6 +113,9 @@ class HtmlUniParser extends BaseObject
     /** @var ZendBasedParser */
     public $zendParser;
 
+    /** @var string */
+    public $typeMech;
+
     /**
      * HtmlUniParser constructor.
      * @param $config
@@ -264,25 +267,25 @@ class HtmlUniParser extends BaseObject
     {
         $this->zendParser->setSleepAfterRequest($this->sleepAfterRequest);
         $this->zendParser->setUrl($this->catalogUrl);
-        $items = $this->zendParser->dom($this->getEncoding())->queryXpath($this->xpathItem);
+        $items = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathItem);
         $result = [];
         foreach ($items as $index => $item) {
             $newItem = [];
             $html = $this->getHtml($item);
             $this->zendParser->setRawHtml($html);
-            $link = $this->zendParser->dom($this->getEncoding())->queryXpath($this->xpathLink);
+            $link = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathLink);
             $link = $this->getFirstValue($link);
             if (preg_match('/^http(s)?:\/\/.*$/i', $link)) {
                 $newItem['link'] = $link;
             } else {
                 $newItem['link'] = $this->siteBaseUrl.$link;
             }
-            $title = $this->zendParser->dom($this->getEncoding())->queryXpath($this->xpathTitle);
+            $title = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathTitle);
             // $newItem['title'] = $this->getFirstValue($title);
             if ($this->goIntoCard && $newItem['link']) {
                 $this->zendParser->setUrl($newItem['link']);
                 foreach ($this->xpathOnCard as $param => $xpath) {
-                    $temParam = $this->zendParser->dom($this->getEncoding())->queryXpath($xpath);
+                    $temParam = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($xpath);
                     if (in_array($param, $this->xpathOnCardMany)) {
                         $newItem[$param] = $this->getAllValues($temParam);
                     } elseif (in_array($param, $this->xpathOnCardHtml)) {
@@ -318,7 +321,7 @@ class HtmlUniParser extends BaseObject
     {
         $this->zendParser->setUrl($this->pageUrl);
         foreach ($this->xpathOnCard as $param => $xpath) {
-            $temParam = $this->zendParser->dom($this->getEncoding())->queryXpath($xpath);
+            $temParam = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($xpath);
             if (in_array($param, $this->xpathOnCardMany)) {
                 $newItem[$param] = $this->getAllValues($temParam);
             } elseif (in_array($param, $this->xpathOnCardHtml)) {
@@ -381,5 +384,21 @@ class HtmlUniParser extends BaseObject
         }
         $result = \iconv($this->getEncoding(), 'UTF-8', $value);
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeMech(): string
+    {
+        return $this->typeMech;
+    }
+
+    /**
+     * @param string $typeMech
+     */
+    public function setTypeMech(string $typeMech)
+    {
+        $this->typeMech = $typeMech;
     }
 }

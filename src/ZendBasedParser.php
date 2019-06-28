@@ -3,6 +3,7 @@
 namespace kosuha606\HtmlUniParser;
 
 use kosuha606\HtmlUniParser\exceptions\ParserInvalidConfigException;
+use PhantomInstaller\PhantomBinary;
 use Zend\Dom\Query;
 
 /**
@@ -64,29 +65,87 @@ class ZendBasedParser
 
     /**
      * @return Query
+     */
+    public function filegetcontentsDom()
+    {
+        if ($this->getLastUrl() !== $this->getUrl()) {
+            $this
+                ->setHtmlBuffer('<meta charset="UTF-8" />'.file_get_contents($this->getUrl()))
+                ->setLastUrl($this->getUrl())
+            ;
+            sleep($this->sleepAfterRequest);
+        }
+        $dom = new Query($this->htmlBuffer);
+        return $dom;
+    }
+
+    /**
+     * @return Query
+     */
+    public function phantomjsDom()
+    {
+        if ($this->getLastUrl() !== $this->getUrl()) {
+            $bin = PhantomBinary::BIN;
+            $command = $bin.' '.__DIR__.'/nodejs/loadspeed.js ' . $this->url;
+            $result = shell_exec($command);
+            $this
+                ->setHtmlBuffer('<meta charset="UTF-8" />'.$result)
+                ->setLastUrl($this->getUrl())
+            ;
+            sleep($this->sleepAfterRequest);
+        }
+        $dom = new Query($this->htmlBuffer);
+        return $dom;
+    }
+
+    /**
+     * @return Query
+     */
+    public function wgetDom()
+    {
+        if ($this->getLastUrl() !== $this->getUrl()) {
+            $command = 'wget -qO- '.$this->url.' --no-check-certificate';
+            $result = shell_exec($command);
+            $this
+                ->setHtmlBuffer('<meta charset="UTF-8" />'.$result)
+                ->setLastUrl($this->getUrl())
+            ;
+            sleep($this->sleepAfterRequest);
+        }
+        $dom = new Query($this->htmlBuffer);
+        return $dom;
+    }
+
+    /**
+     * @return Query
      * @throws ParserInvalidConfigException
      */
-    public function dom($encoding = 'UTF-8')
+    public function dom($encoding = 'UTF-8', $type='curl')
     {
-        if  (!in_array  ('curl', get_loaded_extensions())) {
-            throw new ParserInvalidConfigException('The curl extension in not loaded in system');
+        if ($type==='curl') {
+            if (!in_array('curl', get_loaded_extensions())) {
+                throw new ParserInvalidConfigException('The curl extension in not loaded in system');
+            }
+            if ($this->getLastUrl() !== $this->getUrl()) {
+                $ch = \curl_init($this->getUrl());
+                \curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+                \curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                \ob_start();
+                \ob_implicit_flush(false);
+                \curl_exec($ch);
+                \curl_close($ch);
+                $htmlBuffer = '<meta charset="UTF-8" />';
+                $htmlBuffer = \ob_get_clean();
+                $this->setHtmlBuffer($htmlBuffer);
+                $this->setLastUrl($this->getUrl());
+                \sleep($this->getSleepAfterRequest());
+            }
+            $dom = new Query($this->getHtmlBuffer(), $encoding);
+            return $dom;
+        } else {
+            $method = $type.'Dom';
+            return $this->$method();
         }
-        if ($this->getLastUrl() !== $this->getUrl()) {
-            $ch = \curl_init($this->getUrl());
-            \curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
-            \curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            \ob_start();
-            \ob_implicit_flush(false);
-            \curl_exec($ch);
-            \curl_close($ch);
-            $htmlBuffer = '<meta charset="UTF-8" />';
-            $htmlBuffer = \ob_get_clean();
-            $this->setHtmlBuffer($htmlBuffer);
-            $this->setLastUrl($this->getUrl());
-            \sleep($this->getSleepAfterRequest());
-        }
-        $dom = new Query($this->getHtmlBuffer(), $encoding);
-        return $dom;
     }
 
     /**
@@ -99,10 +158,12 @@ class ZendBasedParser
 
     /**
      * @param $html
+     * @return ZendBasedParser
      */
     public function setRawHtml($html)
     {
         $this->htmlBuffer = $html;
+        return $this;
     }
 
     /**
@@ -147,25 +208,31 @@ class ZendBasedParser
 
     /**
      * @param string $lastUrl
+     * @return ZendBasedParser
      */
     public function setLastUrl($lastUrl)
     {
         $this->lastUrl = $lastUrl;
+        return $this;
     }
 
     /**
      * @param string $htmlBuffer
+     * @return ZendBasedParser
      */
     public function setHtmlBuffer($htmlBuffer)
     {
         $this->htmlBuffer = $htmlBuffer;
+        return $this;
     }
 
     /**
      * @param string $userAgent
+     * @return ZendBasedParser
      */
     public function setUserAgent($userAgent)
     {
         $this->userAgent = $userAgent;
+        return $this;
     }
 }

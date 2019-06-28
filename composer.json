@@ -1,24 +1,36 @@
 {
-    "name": "kosuha606/html-uni-parser",
-    "description": "Uni parser for sites",
-    "type": "composer-pugin",
-    "authors": [
-        {
-            "name": "Eugene Kosuhin",
-            "email": "kosuha606@gamil.com"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {
-        "php": ">=7.0.0",
-        "zendframework/zend-dom": "^2.7@dev"
-    },
-    "reqiure-dev": {
-        "phpunit/phpunit": "7.5.x-dev"
-    },
-    "autoload": {
-        "psr-4": {
-            "kosuha606\\HtmlUniParser\\": "src"
-        }
+  "name": "kosuha606/html-uni-parser",
+  "description": "Uni parser for sites",
+  "type": "composer-pugin",
+  "authors": [
+    {
+      "name": "Eugene Kosuhin",
+      "email": "kosuha606@gamil.com"
     }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.0.0",
+    "zendframework/zend-dom": "^2.7@dev",
+    "jakoch/phantomjs-installer": "2.1.1-p09"
+  },
+  "config": {
+    "bin-dir": "bin"
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "PhantomInstaller\\Installer::installPhantomJS"
+    ],
+    "post-update-cmd": [
+      "PhantomInstaller\\Installer::installPhantomJS"
+    ]
+  },
+  "reqiure-dev": {
+    "phpunit/phpunit": "7.5.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "kosuha606\\HtmlUniParser\\": "src"
+    }
+  }
 }
