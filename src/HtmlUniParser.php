@@ -39,16 +39,6 @@ class HtmlUniParser extends BaseObject
     protected $encoding = 'UTF-8';
 
     /**
-     * @var
-     */
-    protected $class;
-
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
      * @var string
      */
     protected $siteBaseUrl = '/';
@@ -76,22 +66,15 @@ class HtmlUniParser extends BaseObject
     /**
      * @var string
      */
-    protected $xpathPagination;
-
-    /**
-     * @var string
-     */
-    protected $xpathTitle;
-
-    /**
-     * @var string
-     */
     protected $xpathLink;
 
     /**
      * @var array
      */
     protected $xpathOnCard = [];
+
+    /** @var string */
+    protected $typeMech;
 
     /**
      * Результат должен быть множественным
@@ -108,13 +91,10 @@ class HtmlUniParser extends BaseObject
     /**
      * @var array
      */
-    public $callbacks = [];
+    private $callbacks = [];
 
     /** @var ZendBasedParser */
-    public $zendParser;
-
-    /** @var string */
-    public $typeMech;
+    private $zendParser;
 
     /**
      * HtmlUniParser constructor.
@@ -280,8 +260,6 @@ class HtmlUniParser extends BaseObject
             } else {
                 $newItem['link'] = $this->siteBaseUrl.$link;
             }
-            $title = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathTitle);
-            // $newItem['title'] = $this->getFirstValue($title);
             if ($this->goIntoCard && $newItem['link']) {
                 $this->zendParser->setUrl($newItem['link']);
                 foreach ($this->xpathOnCard as $param => $xpath) {
@@ -349,12 +327,14 @@ class HtmlUniParser extends BaseObject
 
     /**
      * @param $lastItem
+     * @return HtmlUniParser
      */
     public function handleCallbacks(&$lastItem)
     {
         foreach ($this->callbacks as &$callbac) {
             $callbac($lastItem, $this->pageUrl);
         }
+        return $this;
     }
 
     /**
@@ -367,10 +347,12 @@ class HtmlUniParser extends BaseObject
 
     /**
      * @param string $encoding
+     * @return HtmlUniParser
      */
     public function setEncoding(string $encoding)
     {
         $this->encoding = $encoding;
+        return $this;
     }
 
     /**
