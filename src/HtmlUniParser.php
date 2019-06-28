@@ -391,7 +391,7 @@ class HtmlUniParser extends BaseObject
      */
     public function getTypeMech(): string
     {
-        return $this->typeMech;
+        return $this->typeMech ?: 'curl';
     }
 
     /**
