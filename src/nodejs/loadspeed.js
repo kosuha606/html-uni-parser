@@ -3,23 +3,19 @@ var page = require('webpage').create(),
     t, address;
 
 if (system.args.length === 1) {
-    console.log('Usage: loadspeed.js <some URL>');
     phantom.exit();
 }
 
 t = Date.now();
 address = system.args[1];
 
-console.log(address);
 page.open(address, function(status) {
     page.onConsoleMessage = function(msg) {
-        console.log(msg);
+        console.error(msg);
     };
     // debugRequest(page);
 
     var title = page.evaluate(function(s) {
-        console.log("LOCATION: ");
-        console.log(window.location.host);
         if (window.location.host === 'www.jeuxvideo.com') {
             if (typeof data !== 'undefined' && data.items) {
                 for (var i = 0; i < data.items.length; i++) {
@@ -41,8 +37,6 @@ page.open(address, function(status) {
     setTimeout(function() {
         phantom.exit();
     }, 2000);
-
-    console.log(status);
 });
 
 function debugRequest(page) {

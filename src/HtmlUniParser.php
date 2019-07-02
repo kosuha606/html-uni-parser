@@ -2,6 +2,8 @@
 
 namespace kosuha606\HtmlUniParser;
 
+use kosuha606\HtmlUniParser\exceptions\ParserInvalidConfigException;
+
 /**
  * Class HtmlUniParser
  * @package kosuha606\HtmlUniParser
@@ -148,7 +150,7 @@ class HtmlUniParser extends BaseObject
      * @param $node
      * @return string
      */
-    function getHtml($node)
+    public function getHtml($node)
     {
         $innerHTML = '';
         $children = $node->childNodes;
@@ -161,7 +163,7 @@ class HtmlUniParser extends BaseObject
     /**
      * @param $object
      * @param $method
-     * @return |null
+     * @return mixed|null
      */
     public function valueStub($object, $method)
     {
@@ -313,16 +315,18 @@ class HtmlUniParser extends BaseObject
     }
 
     /**
-     *
+     * @return array
      */
     public function parseGenerator()
     {
         $generator = $this->urlGenerator;
         $urls = $generator();
+        $results = [];
         foreach ($urls as $url) {
             $this->pageUrl = $url;
-            $this->parseCard();
+            $results[] = $this->parseCard();
         }
+        return $results;
     }
 
     /**

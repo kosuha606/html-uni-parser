@@ -4,7 +4,7 @@ namespace kosuha606\HtmlUniParser;
 
 use kosuha606\HtmlUniParser\exceptions\ParserInvalidConfigException;
 use PhantomInstaller\PhantomBinary;
-use Zend\Dom\Query;
+use Zend\Dom\Document\Query;
 
 /**
  * Class ZendBasedParser
@@ -131,11 +131,11 @@ class ZendBasedParser
                 \curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
                 \curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 \ob_start();
-                \ob_implicit_flush(false);
+                \ob_implicit_flush();
                 \curl_exec($ch);
                 \curl_close($ch);
                 $htmlBuffer = '<meta charset="UTF-8" />';
-                $htmlBuffer = \ob_get_clean();
+                $htmlBuffer .= \ob_get_clean();
                 $this->setHtmlBuffer($htmlBuffer);
                 $this->setLastUrl($this->getUrl());
                 \sleep($this->getSleepAfterRequest());
