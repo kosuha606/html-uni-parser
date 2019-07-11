@@ -4,7 +4,7 @@ namespace kosuha606\HtmlUniParser;
 
 use kosuha606\HtmlUniParser\exceptions\ParserInvalidConfigException;
 use PhantomInstaller\PhantomBinary;
-use Zend\Dom\Document\Query;
+use Zend\Dom\Query;
 
 /**
  * Class ZendBasedParser
