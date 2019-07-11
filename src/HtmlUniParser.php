@@ -79,6 +79,11 @@ class HtmlUniParser extends BaseObject
     protected $typeMech;
 
     /**
+     * @var array
+     */
+    protected $callbacks = [];
+
+    /**
      * Результат должен быть множественным
      * @var array
      */
@@ -89,11 +94,6 @@ class HtmlUniParser extends BaseObject
      * @var array
      */
     private $xpathOnCardHtml = [];
-
-    /**
-     * @var array
-     */
-    private $callbacks = [];
 
     /** @var ZendBasedParser */
     private $zendParser;
