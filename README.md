@@ -48,6 +48,7 @@ For more examples see the `examples/` direcotry
 | xpathLink | Xpath query what can be used for parse link inside parsed item |
 | xpathOnCard | Array of xpath queries, every key will be key in result array |
 | typeMech | Type of parsing mechanizm, for example: `wget`, `curl`, `phantomjs`, `filegetcontents` |
+| forceOuterHtml | Force parser to use outer html for xpaths |
 
 ### Available methods
 

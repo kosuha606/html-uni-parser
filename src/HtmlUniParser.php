@@ -29,6 +29,12 @@ class HtmlUniParser extends BaseObject
     protected $pageUrl;
 
     /**
+     * Заставить парсер получать внешний html
+     * @var boolean
+     */
+    protected $forceOuterHtml = false;
+
+    /**
      * Парсинг по урлам, сгенерированным генератором
      * @var
      */
@@ -152,12 +158,20 @@ class HtmlUniParser extends BaseObject
      */
     public function getHtml($node)
     {
+        if ($this->forceOuterHtml) {
+            return $this->getOuterHtml($node);
+        }
         $innerHTML = '';
         $children = $node->childNodes;
         foreach ($children as $child) {
             $innerHTML .= $child->ownerDocument->saveXML($child);
         }
         return $innerHTML;
+    }
+
+    public function getOuterHtml($node)
+    {
+        return $node->ownerDocument->saveXML($node);
     }
 
     /**
