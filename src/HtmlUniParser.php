@@ -470,7 +470,7 @@ class HtmlUniParser extends BaseObject
      * @param bool $resultLimit
      * @return HtmlUniParser
      */
-    public function setResultLimit(bool $resultLimit)
+    public function setResultLimit($resultLimit)
     {
         $this->resultLimit = $resultLimit;
         return $this;
