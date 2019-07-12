@@ -169,6 +169,10 @@ class HtmlUniParser extends BaseObject
         return $innerHTML;
     }
 
+    /**
+     * @param $node
+     * @return mixed
+     */
     public function getOuterHtml($node)
     {
         return $node->ownerDocument->saveXML($node);
@@ -400,5 +404,165 @@ class HtmlUniParser extends BaseObject
     public function setTypeMech(string $typeMech)
     {
         $this->typeMech = $typeMech;
+    }
+
+    /**
+     * @param mixed $catalogUrl
+     * @return HtmlUniParser
+     */
+    public function setCatalogUrl($catalogUrl)
+    {
+        $this->catalogUrl = $catalogUrl;
+        return $this;
+    }
+
+    /**
+     * @param mixed $searchUrl
+     * @return HtmlUniParser
+     */
+    public function setSearchUrl($searchUrl)
+    {
+        $this->searchUrl = $searchUrl;
+        return $this;
+    }
+
+    /**
+     * @param mixed $pageUrl
+     * @return HtmlUniParser
+     */
+    public function setPageUrl($pageUrl)
+    {
+        $this->pageUrl = $pageUrl;
+        return $this;
+    }
+
+    /**
+     * @param bool $forceOuterHtml
+     * @return HtmlUniParser
+     */
+    public function setForceOuterHtml(bool $forceOuterHtml)
+    {
+        $this->forceOuterHtml = $forceOuterHtml;
+        return $this;
+    }
+
+    /**
+     * @param mixed $urlGenerator
+     * @return HtmlUniParser
+     */
+    public function setUrlGenerator($urlGenerator)
+    {
+        $this->urlGenerator = $urlGenerator;
+        return $this;
+    }
+
+    /**
+     * @param string $siteBaseUrl
+     * @return HtmlUniParser
+     */
+    public function setSiteBaseUrl(string $siteBaseUrl)
+    {
+        $this->siteBaseUrl = $siteBaseUrl;
+        return $this;
+    }
+
+    /**
+     * @param bool $resultLimit
+     * @return HtmlUniParser
+     */
+    public function setResultLimit(bool $resultLimit)
+    {
+        $this->resultLimit = $resultLimit;
+        return $this;
+    }
+
+    /**
+     * @param int $sleepAfterRequest
+     * @return HtmlUniParser
+     */
+    public function setSleepAfterRequest(int $sleepAfterRequest)
+    {
+        $this->sleepAfterRequest = $sleepAfterRequest;
+        return $this;
+    }
+
+    /**
+     * @param bool $goIntoCard
+     * @return HtmlUniParser
+     */
+    public function setGoIntoCard(bool $goIntoCard)
+    {
+        $this->goIntoCard = $goIntoCard;
+        return $this;
+    }
+
+    /**
+     * @param string $xpathItem
+     * @return HtmlUniParser
+     */
+    public function setXpathItem(string $xpathItem)
+    {
+        $this->xpathItem = $xpathItem;
+        return $this;
+    }
+
+    /**
+     * @param string $xpathLink
+     * @return HtmlUniParser
+     */
+    public function setXpathLink(string $xpathLink)
+    {
+        $this->xpathLink = $xpathLink;
+        return $this;
+    }
+
+    /**
+     * @param array $xpathOnCard
+     * @return HtmlUniParser
+     */
+    public function setXpathOnCard(array $xpathOnCard)
+    {
+        $this->xpathOnCard = $xpathOnCard;
+        return $this;
+    }
+
+    /**
+     * @param array $callbacks
+     * @return HtmlUniParser
+     */
+    public function setCallbacks(array $callbacks)
+    {
+        $this->callbacks = $callbacks;
+        return $this;
+    }
+
+    /**
+     * @param array $xpathOnCardMany
+     * @return HtmlUniParser
+     */
+    public function setXpathOnCardMany(array $xpathOnCardMany)
+    {
+        $this->xpathOnCardMany = $xpathOnCardMany;
+        return $this;
+    }
+
+    /**
+     * @param array $xpathOnCardHtml
+     * @return HtmlUniParser
+     */
+    public function setXpathOnCardHtml(array $xpathOnCardHtml)
+    {
+        $this->xpathOnCardHtml = $xpathOnCardHtml;
+        return $this;
+    }
+
+    /**
+     * @param ZendBasedParser $zendParser
+     * @return HtmlUniParser
+     */
+    public function setZendParser(ZendBasedParser $zendParser)
+    {
+        $this->zendParser = $zendParser;
+        return $this;
     }
 }
