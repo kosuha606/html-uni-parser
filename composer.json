@@ -11,8 +11,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=7.0.0",
-    "zendframework/zend-dom": "^2.7@dev",
-    "jakoch/phantomjs-installer": "dev-master"
+    "zendframework/zend-dom": "^2.7@dev"
   },
   "config": {
     "bin-dir": "bin"
