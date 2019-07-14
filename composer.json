@@ -13,17 +13,6 @@
     "php": ">=7.0.0",
     "zendframework/zend-dom": "^2.7@dev"
   },
-  "config": {
-    "bin-dir": "bin"
-  },
-  "scripts": {
-    "post-install-cmd": [
-      "PhantomInstaller\\Installer::installPhantomJS"
-    ],
-    "post-update-cmd": [
-      "PhantomInstaller\\Installer::installPhantomJS"
-    ]
-  },
   "autoload": {
     "psr-4": {
       "kosuha606\\HtmlUniParser\\": "src"
