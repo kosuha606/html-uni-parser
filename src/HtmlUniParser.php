@@ -40,6 +40,9 @@ class HtmlUniParser extends BaseObject
      */
     protected $urlGenerator;
 
+    /** @var  */
+    protected $beforeDomCallback;
+
     /**
      * Кодировка сайта
      * @var string
@@ -267,12 +270,14 @@ class HtmlUniParser extends BaseObject
     {
         $this->zendParser->setSleepAfterRequest($this->sleepAfterRequest);
         $this->zendParser->setUrl($this->catalogUrl);
+        $this->onBeforeDom();
         $items = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathItem);
         $result = [];
         foreach ($items as $index => $item) {
             $newItem = [];
             $html = $this->getHtml($item);
             $this->zendParser->setRawHtml($html);
+            $this->onBeforeDom();
             $link = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathLink);
             $link = $this->getFirstValue($link);
             if (preg_match('/^http(s)?:\/\/.*$/i', $link)) {
@@ -283,6 +288,7 @@ class HtmlUniParser extends BaseObject
             if ($this->goIntoCard && $newItem['link']) {
                 $this->zendParser->setUrl($newItem['link']);
                 foreach ($this->xpathOnCard as $param => $xpath) {
+                    $this->onBeforeDom();
                     $temParam = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($xpath);
                     if (in_array($param, $this->xpathOnCardMany)) {
                         $newItem[$param] = $this->getAllValues($temParam);
@@ -319,6 +325,7 @@ class HtmlUniParser extends BaseObject
     {
         $this->zendParser->setUrl($this->pageUrl);
         foreach ($this->xpathOnCard as $param => $xpath) {
+            $this->onBeforeDom();
             $temParam = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($xpath);
             if (in_array($param, $this->xpathOnCardMany)) {
                 $newItem[$param] = $this->getAllValues($temParam);
@@ -355,6 +362,18 @@ class HtmlUniParser extends BaseObject
     {
         foreach ($this->callbacks as &$callbac) {
             $callbac($lastItem, $this->pageUrl);
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function onBeforeDom()
+    {
+        $callback = $this->beforeDomCallback;
+        if ($callback) {
+            $callback($this);
         }
         return $this;
     }
@@ -399,11 +418,21 @@ class HtmlUniParser extends BaseObject
     }
 
     /**
+     * @return ZendBasedParser
+     */
+    public function getZendParser(): ZendBasedParser
+    {
+        return $this->zendParser;
+    }
+
+    /**
      * @param string $typeMech
+     * @return HtmlUniParser
      */
     public function setTypeMech(string $typeMech)
     {
         $this->typeMech = $typeMech;
+        return $this;
     }
 
     /**
@@ -563,6 +592,16 @@ class HtmlUniParser extends BaseObject
     public function setZendParser(ZendBasedParser $zendParser)
     {
         $this->zendParser = $zendParser;
+        return $this;
+    }
+
+    /**
+     * @param mixed $beforeDomCallback
+     * @return HtmlUniParser
+     */
+    public function setBeforeDomCallback($beforeDomCallback)
+    {
+        $this->beforeDomCallback = $beforeDomCallback;
         return $this;
     }
 }
