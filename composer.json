@@ -11,19 +11,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=7.0.0",
-    "zendframework/zend-dom": "^2.7@dev",
-    "jakoch/phantomjs-installer": "dev-master"
-  },
-  "config": {
-    "bin-dir": "bin"
-  },
-  "scripts": {
-    "post-install-cmd": [
-      "PhantomInstaller\\Installer::installPhantomJS"
-    ],
-    "post-update-cmd": [
-      "PhantomInstaller\\Installer::installPhantomJS"
-    ]
+    "zendframework/zend-dom": "^2.7@dev"
   },
   "autoload": {
     "psr-4": {

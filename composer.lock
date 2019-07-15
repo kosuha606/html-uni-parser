@@ -4,58 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "87101574e0ab1a02c04d2f02895731ff",
+    "content-hash": "fb26ddf46cf2814b72065912ac3450c8",
     "packages": [
-        {
-            "name": "jakoch/phantomjs-installer",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jakoch/phantomjs-installer.git",
-                "reference": "3891cb6edb5a993052687c0aa06e74ee7576b512"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jakoch/phantomjs-installer/zipball/3891cb6edb5a993052687c0aa06e74ee7576b512",
-                "reference": "3891cb6edb5a993052687c0aa06e74ee7576b512",
-                "shasum": ""
-            },
-            "require": {
-                "ext-bz2": "*",
-                "ext-openssl": "*",
-                "php": ">5.3"
-            },
-            "require-dev": {
-                "composer/composer": "^1.2",
-                "phpunit/phpunit": "^4.8"
-            },
-            "type": "custom-installer",
-            "autoload": {
-                "psr-4": {
-                    "PhantomInstaller\\Test\\": "tests/"
-                },
-                "psr-0": {
-                    "PhantomInstaller\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jens-André Koch",
-                    "email": "jakoch@web.de"
-                }
-            ],
-            "description": "A Composer package which installs the PhantomJS binary (Linux, Windows, Mac) into `/bin` of your project.",
-            "keywords": [
-                "binaries",
-                "headless",
-                "phantomjs"
-            ],
-            "time": "2018-10-28T18:14:51+00:00"
-        },
         {
             "name": "zendframework/zend-dom",
             "version": "dev-develop",
@@ -1624,8 +1574,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "zendframework/zend-dom": 20,
-        "jakoch/phantomjs-installer": 20
+        "zendframework/zend-dom": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
