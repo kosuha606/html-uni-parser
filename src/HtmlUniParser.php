@@ -80,6 +80,11 @@ class HtmlUniParser extends BaseObject
     protected $xpathLink;
 
     /**
+     * @var string
+     */
+    protected $xpathTitle;
+
+    /**
      * @var array
      */
     protected $xpathOnCard = [];
@@ -272,18 +277,24 @@ class HtmlUniParser extends BaseObject
         $this->zendParser->setUrl($this->catalogUrl);
         $this->onBeforeDom();
         $items = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathItem);
+        $pageHtml = $this->zendParser->getHtmlBuffer();
         $result = [];
         foreach ($items as $index => $item) {
             $newItem = [];
             $html = $this->getHtml($item);
             $this->zendParser->setRawHtml($html);
-            $this->onBeforeDom();
             $link = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathLink);
             $link = $this->getFirstValue($link);
             if (preg_match('/^http(s)?:\/\/.*$/i', $link)) {
                 $newItem['link'] = $link;
             } else {
                 $newItem['link'] = $this->siteBaseUrl.$link;
+            }
+            if ($this->xpathTitle) {
+                $this->zendParser->setRawHtml($pageHtml);
+                $title = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathTitle);
+                $title = $this->getFirstValue($title);
+                $newItem['title'] = $title;
             }
             if ($this->goIntoCard && $newItem['link']) {
                 $this->zendParser->setUrl($newItem['link']);
@@ -602,6 +613,23 @@ class HtmlUniParser extends BaseObject
     public function setBeforeDomCallback($beforeDomCallback)
     {
         $this->beforeDomCallback = $beforeDomCallback;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getXpathTitle()
+    {
+        return $this->xpathTitle;
+    }
+
+    /**
+     * @param string $xpathTitle
+     */
+    public function setXpathTitle($xpathTitle)
+    {
+        $this->xpathTitle = $xpathTitle;
         return $this;
     }
 }

@@ -140,7 +140,12 @@ class ZendBasedParser
                 $this->setLastUrl($this->getUrl());
                 \sleep($this->getSleepAfterRequest());
             }
-            $dom = new Query($this->getHtmlBuffer(), $encoding);
+            $emptyHtml = '<html><head></head><body></body></html>';
+            $html = $this->getHtmlBuffer();
+            if (!$html) {
+                $html = $emptyHtml;
+            }
+            $dom = new Query($html, $encoding);
             return $dom;
         } else {
             $method = $type.'Dom';
