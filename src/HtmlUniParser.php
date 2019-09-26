@@ -1,11 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace kosuha606\HtmlUniParser;
 
-use kosuha606\HtmlUniParser\exceptions\ParserInvalidConfigException;
+use Assert\Assertion;
+use kosuha606\HtmlUniParser\action\ComposeHtmlAction;
+use kosuha606\HtmlUniParser\action\GetFirstMatchAction;
+use kosuha606\HtmlUniParser\action\InitializeHtmlUniParserAction;
 
 /**
- * Class HtmlUniParser
+ * The main intrance point for work with the package
  * @package kosuha606\HtmlUniParser
  */
 class HtmlUniParser extends BaseObject
@@ -40,7 +44,7 @@ class HtmlUniParser extends BaseObject
      */
     protected $urlGenerator;
 
-    /** @var  */
+    /** @var */
     protected $beforeDomCallback;
 
     /**
@@ -84,13 +88,13 @@ class HtmlUniParser extends BaseObject
      */
     protected $xpathTitle;
 
+    /** @var string */
+    protected $typeMech;
+
     /**
      * @var array
      */
     protected $xpathOnCard = [];
-
-    /** @var string */
-    protected $typeMech;
 
     /**
      * @var array
@@ -115,29 +119,38 @@ class HtmlUniParser extends BaseObject
     /**
      * HtmlUniParser constructor.
      * @param $config
+     * @throws \Assert\AssertionFailedException
      */
     public function __construct($config, ZendBasedParser $parser)
     {
-        if  (!in_array  ('dom', get_loaded_extensions())) {
-            throw new ParserInvalidConfigException('The dom extension in not loaded in system');
-        }
-        if  (!in_array  ('iconv', get_loaded_extensions())) {
-            throw new ParserInvalidConfigException('The iconv extension in not loaded in system');
-        }
         parent::__construct($config);
-        $this->zendParser = $parser;
-        if (\count($this->xpathOnCard) > 0) {
-            foreach ($this->xpathOnCard as $param => &$xpath) {
-                if (\strpos($xpath, 'MANY') !== false) {
-                    $this->xpathOnCardMany[] = $param;
-                    $xpath = \str_replace('MANY', '', $xpath);
-                }
-                if (\strpos($xpath, 'HTML') !== false) {
-                    $this->xpathOnCardHtml[] = $param;
-                    $xpath = \str_replace('HTML', '', $xpath);
-                }
-            }
-        }
+        $this->checkPhpExtensions();
+        InitializeHtmlUniParserAction::do($this, $parser);
+    }
+
+    /**
+     * @throws \Assert\AssertionFailedException
+     */
+    private function checkPhpExtensions()
+    {
+        Assertion::keyNotExists(
+            get_loaded_extensions(),
+            'dom',
+            'The dom extension in not loaded in system. HtmlUniParser cant work'
+        );
+        Assertion::keyNotExists(
+            get_loaded_extensions(),
+            'iconv',
+            'The iconv extension in not loaded in system. HtmlUniParser cant work'
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function getXpathOnCard()
+    {
+        return $this->xpathOnCard;
     }
 
     /**
@@ -145,11 +158,24 @@ class HtmlUniParser extends BaseObject
      * by yourself or you can use this method
      * @param $config
      * @return HtmlUniParser
+     * @throws \Assert\AssertionFailedException
+     * @throws \ReflectionException
      */
     public static function create($config)
     {
-
-        return new static($config, new ZendBasedParser());
+        return Factory::createObject(
+            [
+                'class' => static::class,
+            ],
+            [
+                $config,
+                Factory::createObject(
+                    [
+                        'class' => ZendBasedParser::class,
+                    ]
+                ),
+            ]
+        );
     }
 
     /**
@@ -163,65 +189,31 @@ class HtmlUniParser extends BaseObject
     /**
      * @param $node
      * @return string
+     * @throws \Assert\AssertionFailedException
      */
-    public function getHtml($node)
+    public function composeHtml($node): string
     {
-        if ($this->forceOuterHtml) {
-            return $this->getOuterHtml($node);
-        }
-        $innerHTML = '';
-        $children = $node->childNodes;
-        foreach ($children as $child) {
-            $innerHTML .= $child->ownerDocument->saveXML($child);
-        }
-        return $innerHTML;
+        return ComposeHtmlAction::do($this, $node);
     }
 
     /**
      * @param $node
      * @return mixed
      */
-    public function getOuterHtml($node)
+    public function queryOuterHtml($node)
     {
         return $node->ownerDocument->saveXML($node);
     }
 
     /**
-     * @param $object
-     * @param $method
-     * @return mixed|null
-     */
-    public function valueStub($object, $method)
-    {
-        if (!\is_object($object)) {
-            return null;
-        }
-        if (\property_exists($object, $method)) {
-            return $object->{$method};
-        }
-        return null;
-    }
-
-    /**
-     * @param $results
-     * @return array
-     */
-    public function getFirstMatch($results)
-    {
-        $result = array();
-        foreach ($results as $r) {
-            $result = $r;
-        }
-        return $result;
-    }
-
-    /**
      * @param $nodes
      * @return string
+     * @throws \Assert\AssertionFailedException
      */
     public function getFirstValue($nodes)
     {
-        $val = $this->getFirstMatch($nodes);
+        $val = GetFirstMatchAction::do($nodes);
+
         return $this->getValue($val);
     }
 
@@ -232,10 +224,11 @@ class HtmlUniParser extends BaseObject
     public function getFirstValueHtml($nodes)
     {
         /** @var \DOMElement $val */
-        $val = $this->getFirstMatch($nodes);
+        $val = GetFirstMatchAction::do($nodes);
         $html = $val->ownerDocument->saveHTML($val);
         // Удаляем картинки из спарсенного текста
         $html = preg_replace("/<img[^>]+\>/i", "", $html);
+
         return $this->proccessValue($html);
     }
 
@@ -252,6 +245,7 @@ class HtmlUniParser extends BaseObject
         if ($val instanceof \DOMElement) {
             $result = $this->valueStub($val, 'nodeValue');
         }
+
         return $this->proccessValue(trim($result));
     }
 
@@ -265,6 +259,7 @@ class HtmlUniParser extends BaseObject
         foreach ($nodes as $node) {
             $result[] = $this->getValue($node);
         }
+
         return $result;
     }
 
@@ -281,7 +276,7 @@ class HtmlUniParser extends BaseObject
         $result = [];
         foreach ($items as $index => $item) {
             $newItem = [];
-            $html = $this->getHtml($item);
+            $html = $this->composeHtml($item);
             $this->zendParser->setRawHtml($html);
             $link = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathLink);
             $link = $this->getFirstValue($link);
@@ -292,7 +287,9 @@ class HtmlUniParser extends BaseObject
             }
             if ($this->xpathTitle) {
                 $this->zendParser->setRawHtml($pageHtml);
-                $title = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath($this->xpathTitle);
+                $title = $this->zendParser->dom($this->getEncoding(), $this->getTypeMech())->queryXpath(
+                    $this->xpathTitle
+                );
                 $title = $this->getFirstValue($title);
                 $newItem['title'] = $title;
             }
@@ -317,6 +314,7 @@ class HtmlUniParser extends BaseObject
                 break;
             }
         }
+
         return $result;
     }
 
@@ -326,6 +324,7 @@ class HtmlUniParser extends BaseObject
     public function parseSearch($textQuery)
     {
         $this->catalogUrl = $this->searchUrl.$textQuery;
+
         return $this->parseUrl();
     }
 
@@ -347,6 +346,7 @@ class HtmlUniParser extends BaseObject
             }
         }
         $this->handleCallbacks($newItem);
+
         return $newItem;
     }
 
@@ -362,6 +362,7 @@ class HtmlUniParser extends BaseObject
             $this->pageUrl = $url;
             $results[] = $this->parseCard();
         }
+
         return $results;
     }
 
@@ -374,6 +375,7 @@ class HtmlUniParser extends BaseObject
         foreach ($this->callbacks as &$callbac) {
             $callbac($lastItem, $this->pageUrl);
         }
+
         return $this;
     }
 
@@ -386,6 +388,7 @@ class HtmlUniParser extends BaseObject
         if ($callback) {
             $callback($this);
         }
+
         return $this;
     }
 
@@ -404,6 +407,7 @@ class HtmlUniParser extends BaseObject
     public function setEncoding(string $encoding)
     {
         $this->encoding = $encoding;
+
         return $this;
     }
 
@@ -417,6 +421,7 @@ class HtmlUniParser extends BaseObject
             return $value;
         }
         $result = \iconv($this->getEncoding(), 'UTF-8', $value);
+
         return $result;
     }
 
@@ -443,6 +448,7 @@ class HtmlUniParser extends BaseObject
     public function setTypeMech(string $typeMech)
     {
         $this->typeMech = $typeMech;
+
         return $this;
     }
 
@@ -453,6 +459,7 @@ class HtmlUniParser extends BaseObject
     public function setCatalogUrl($catalogUrl)
     {
         $this->catalogUrl = $catalogUrl;
+
         return $this;
     }
 
@@ -463,6 +470,7 @@ class HtmlUniParser extends BaseObject
     public function setSearchUrl($searchUrl)
     {
         $this->searchUrl = $searchUrl;
+
         return $this;
     }
 
@@ -473,6 +481,7 @@ class HtmlUniParser extends BaseObject
     public function setPageUrl($pageUrl)
     {
         $this->pageUrl = $pageUrl;
+
         return $this;
     }
 
@@ -483,7 +492,16 @@ class HtmlUniParser extends BaseObject
     public function setForceOuterHtml(bool $forceOuterHtml)
     {
         $this->forceOuterHtml = $forceOuterHtml;
+
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isForceOuterHtml(): bool
+    {
+        return $this->forceOuterHtml;
     }
 
     /**
@@ -493,6 +511,7 @@ class HtmlUniParser extends BaseObject
     public function setUrlGenerator($urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
+
         return $this;
     }
 
@@ -503,6 +522,7 @@ class HtmlUniParser extends BaseObject
     public function setSiteBaseUrl(string $siteBaseUrl)
     {
         $this->siteBaseUrl = $siteBaseUrl;
+
         return $this;
     }
 
@@ -513,6 +533,7 @@ class HtmlUniParser extends BaseObject
     public function setResultLimit($resultLimit)
     {
         $this->resultLimit = $resultLimit;
+
         return $this;
     }
 
@@ -523,6 +544,7 @@ class HtmlUniParser extends BaseObject
     public function setSleepAfterRequest(int $sleepAfterRequest)
     {
         $this->sleepAfterRequest = $sleepAfterRequest;
+
         return $this;
     }
 
@@ -533,6 +555,7 @@ class HtmlUniParser extends BaseObject
     public function setGoIntoCard(bool $goIntoCard)
     {
         $this->goIntoCard = $goIntoCard;
+
         return $this;
     }
 
@@ -543,6 +566,7 @@ class HtmlUniParser extends BaseObject
     public function setXpathItem(string $xpathItem)
     {
         $this->xpathItem = $xpathItem;
+
         return $this;
     }
 
@@ -553,6 +577,7 @@ class HtmlUniParser extends BaseObject
     public function setXpathLink(string $xpathLink)
     {
         $this->xpathLink = $xpathLink;
+
         return $this;
     }
 
@@ -563,6 +588,7 @@ class HtmlUniParser extends BaseObject
     public function setXpathOnCard(array $xpathOnCard)
     {
         $this->xpathOnCard = $xpathOnCard;
+
         return $this;
     }
 
@@ -573,6 +599,7 @@ class HtmlUniParser extends BaseObject
     public function setCallbacks(array $callbacks)
     {
         $this->callbacks = $callbacks;
+
         return $this;
     }
 
@@ -583,6 +610,7 @@ class HtmlUniParser extends BaseObject
     public function setXpathOnCardMany(array $xpathOnCardMany)
     {
         $this->xpathOnCardMany = $xpathOnCardMany;
+
         return $this;
     }
 
@@ -593,6 +621,7 @@ class HtmlUniParser extends BaseObject
     public function setXpathOnCardHtml(array $xpathOnCardHtml)
     {
         $this->xpathOnCardHtml = $xpathOnCardHtml;
+
         return $this;
     }
 
@@ -603,6 +632,7 @@ class HtmlUniParser extends BaseObject
     public function setZendParser(ZendBasedParser $zendParser)
     {
         $this->zendParser = $zendParser;
+
         return $this;
     }
 
@@ -613,6 +643,7 @@ class HtmlUniParser extends BaseObject
     public function setBeforeDomCallback($beforeDomCallback)
     {
         $this->beforeDomCallback = $beforeDomCallback;
+
         return $this;
     }
 
@@ -626,10 +657,29 @@ class HtmlUniParser extends BaseObject
 
     /**
      * @param string $xpathTitle
+     * @return HtmlUniParser
      */
     public function setXpathTitle($xpathTitle)
     {
         $this->xpathTitle = $xpathTitle;
+
         return $this;
+    }
+
+    /**
+     * @param $object
+     * @param $method
+     * @return mixed|null
+     */
+    private function valueStub($object, $method)
+    {
+        if (!\is_object($object)) {
+            return null;
+        }
+        if (\property_exists($object, $method)) {
+            return $object->{$method};
+        }
+
+        return null;
     }
 }

@@ -11,7 +11,8 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=7.0.0",
-    "zendframework/zend-dom": "^2.7@dev"
+    "zendframework/zend-dom": "^2.7@dev",
+    "beberlei/assert": "dev-master"
   },
   "autoload": {
     "psr-4": {

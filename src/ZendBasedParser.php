@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace kosuha606\HtmlUniParser;
 
@@ -7,10 +8,10 @@ use PhantomInstaller\PhantomBinary;
 use Zend\Dom\Query;
 
 /**
- * Class ZendBasedParser
+ * Parser helper based on zend query
  * @package app\Parsers
  */
-class ZendBasedParser
+class ZendBasedParser extends BaseObject
 {
     /**
      * @var string
@@ -66,7 +67,7 @@ class ZendBasedParser
     /**
      * @return Query
      */
-    public function filegetcontentsDom()
+    public function filegetcontentsDom(): Query
     {
         if ($this->getLastUrl() !== $this->getUrl()) {
             $this
@@ -82,7 +83,7 @@ class ZendBasedParser
     /**
      * @return Query
      */
-    public function phantomjsDom()
+    public function phantomjsDom(): Query
     {
         if ($this->getLastUrl() !== $this->getUrl()) {
             $bin = PhantomBinary::BIN;
@@ -101,7 +102,7 @@ class ZendBasedParser
     /**
      * @return Query
      */
-    public function wgetDom()
+    public function wgetDom(): Query
     {
         if ($this->getLastUrl() !== $this->getUrl()) {
             $command = 'wget -qO- '.$this->url.' --no-check-certificate';
@@ -120,7 +121,7 @@ class ZendBasedParser
      * @return Query
      * @throws ParserInvalidConfigException
      */
-    public function dom($encoding = 'UTF-8', $type='curl')
+    public function dom($encoding = 'UTF-8', $type='curl'): Query
     {
         if ($type==='curl') {
             if (!in_array('curl', get_loaded_extensions())) {
@@ -156,16 +157,16 @@ class ZendBasedParser
     /**
      * @return string
      */
-    public function getRawHtml()
+    public function getRawHtml(): string
     {
-        return $this->htmlBuffer;
+        return $this->htmlBuffer ?: '';
     }
 
     /**
      * @param $html
      * @return ZendBasedParser
      */
-    public function setRawHtml($html)
+    public function setRawHtml($html): self
     {
         $this->htmlBuffer = $html;
         return $this;
@@ -174,15 +175,15 @@ class ZendBasedParser
     /**
      * @return string
      */
-    public function getLastUrl()
+    public function getLastUrl(): string
     {
-        return $this->lastUrl;
+        return $this->lastUrl ?: '';
     }
 
     /**
      * @return string
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
@@ -190,7 +191,7 @@ class ZendBasedParser
     /**
      * @return string
      */
-    public function getHtmlBuffer()
+    public function getHtmlBuffer(): string
     {
         return $this->htmlBuffer;
     }
@@ -198,7 +199,7 @@ class ZendBasedParser
     /**
      * @return int
      */
-    public function getSleepAfterRequest()
+    public function getSleepAfterRequest(): int
     {
         return $this->sleepAfterRequest;
     }
@@ -206,7 +207,7 @@ class ZendBasedParser
     /**
      * @return string
      */
-    public function getUserAgent()
+    public function getUserAgent(): string
     {
         return $this->userAgent;
     }
@@ -215,7 +216,7 @@ class ZendBasedParser
      * @param string $lastUrl
      * @return ZendBasedParser
      */
-    public function setLastUrl($lastUrl)
+    public function setLastUrl($lastUrl): self
     {
         $this->lastUrl = $lastUrl;
         return $this;
@@ -225,7 +226,7 @@ class ZendBasedParser
      * @param string $htmlBuffer
      * @return ZendBasedParser
      */
-    public function setHtmlBuffer($htmlBuffer)
+    public function setHtmlBuffer($htmlBuffer): self
     {
         $this->htmlBuffer = $htmlBuffer;
         return $this;
@@ -235,7 +236,7 @@ class ZendBasedParser
      * @param string $userAgent
      * @return ZendBasedParser
      */
-    public function setUserAgent($userAgent)
+    public function setUserAgent($userAgent): self
     {
         $this->userAgent = $userAgent;
         return $this;
