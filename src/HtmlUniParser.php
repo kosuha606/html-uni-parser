@@ -7,6 +7,7 @@ use Assert\Assertion;
 use kosuha606\HtmlUniParser\action\ComposeHtmlAction;
 use kosuha606\HtmlUniParser\action\GetFirstMatchAction;
 use kosuha606\HtmlUniParser\action\InitializeHtmlUniParserAction;
+use kosuha606\HtmlUniParser\action\ValueStubAction;
 
 /**
  * The main intrance point for work with the package
@@ -220,6 +221,7 @@ class HtmlUniParser extends BaseObject
     /**
      * @param $nodes
      * @return string|string[]|null
+     * @throws \Assert\AssertionFailedException
      */
     public function getFirstValueHtml($nodes)
     {
@@ -235,15 +237,16 @@ class HtmlUniParser extends BaseObject
     /**
      * @param $val
      * @return string
+     * @throws \Assert\AssertionFailedException
      */
     public function getValue($val)
     {
         $result = null;
         if ($val instanceof \DOMAttr) {
-            $result = $this->valueStub($val, 'value');
+            $result = ValueStubAction::do($val, 'value');
         }
         if ($val instanceof \DOMElement) {
-            $result = $this->valueStub($val, 'nodeValue');
+            $result = ValueStubAction::do($val, 'nodeValue');
         }
 
         return $this->proccessValue(trim($result));
@@ -664,22 +667,5 @@ class HtmlUniParser extends BaseObject
         $this->xpathTitle = $xpathTitle;
 
         return $this;
-    }
-
-    /**
-     * @param $object
-     * @param $method
-     * @return mixed|null
-     */
-    private function valueStub($object, $method)
-    {
-        if (!\is_object($object)) {
-            return null;
-        }
-        if (\property_exists($object, $method)) {
-            return $object->{$method};
-        }
-
-        return null;
     }
 }
